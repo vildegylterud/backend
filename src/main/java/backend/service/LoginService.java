@@ -35,6 +35,7 @@ public class LoginService {
     public String loginUser(String username, String password) {
         // check username and password are valid to access token
         // note that subsequent request to the API need this token
+
         User foundUser = userRepository.findByUsername(username);
 
         if(foundUser != null) {
@@ -44,7 +45,6 @@ public class LoginService {
             } else {
                 return "Wrong password";
             }
-
         }
         return "User not found";
     }
