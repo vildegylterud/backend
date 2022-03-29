@@ -1,7 +1,7 @@
 package backend.service;
 import backend.controller.LoginController;
 import backend.model.User;
-import backend.repo.UserRepository;
+import backend.repo.UserRepo;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -24,12 +24,18 @@ import java.util.stream.Collectors;
 @Service
 public class LoginService {
 
+    UserRepo userRepo;
+
+    LoginService(UserRepo userRepo) {
+        this.userRepo = userRepo;
+      
     UserRepository userRepository;
     PasswordEncoder passwordEncoder;
 
     LoginService(UserRepository userRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = new BCryptPasswordEncoder();
+      
     }
 
     public static String keyStr = "testsecrettestsecrettestsecrettestsecrettestsecret";
@@ -40,11 +46,17 @@ public class LoginService {
         // check username and password are valid to access token
         // note that subsequent request to the API need this token
 
+
+        User foundUser = userRepo.findByUsername(username);
+
+        if(foundUser != null) {
+
         User foundUser = userRepository.findByUsername(username);
         String encodedPassword = passwordEncoder.encode(password);
         String encodedDatabasePassword = passwordEncoder.encode(foundUser.getPassword());
         boolean matches = passwordEncoder.matches(foundUser.getPassword(), encodedPassword);
         if(matches) {
+
             if (Objects.equals(foundUser.getPassword(), password)) {
                 LOGGER.info("USER LOGGED IN - " + username);
                 LOGGER.info(encodedPassword);

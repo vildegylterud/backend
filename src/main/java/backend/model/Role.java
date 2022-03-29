@@ -1,27 +1,36 @@
 package backend.model;
+import javax.persistence.*;
+import java.util.Collection;
+import java.util.List;
 
-import org.hibernate.mapping.Collection;
-import org.springframework.data.annotation.Id;
-
-import javax.persistence.Column;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.ManyToMany;
-
+@Entity
+@Table(name = "roles")
 public class Role {
-    @Id
-    @Column(name = "role_id")
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
 
-    @Column(name = "role_name")
+    @Id
+    @Column(name="role_id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
     private String name;
 
-    public Integer getId() {
-        return id;
+    public Role() {}
+
+    public Role(String name) {
+        this.name = name;
+    }
+
+    public Role(Long id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+
+    public Role(Long id) {
+        this.id = id;
     }
 
     public String getName() {
         return name;
     }
+
 }
