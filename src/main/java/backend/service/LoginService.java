@@ -23,19 +23,12 @@ import java.util.stream.Collectors;
 
 @Service
 public class LoginService {
-
     UserRepo userRepo;
+    PasswordEncoder passwordEncoder;
 
     LoginService(UserRepo userRepo) {
         this.userRepo = userRepo;
-      
-    UserRepository userRepository;
-    PasswordEncoder passwordEncoder;
-
-    LoginService(UserRepository userRepository) {
-        this.userRepository = userRepository;
         this.passwordEncoder = new BCryptPasswordEncoder();
-      
     }
 
     public static String keyStr = "testsecrettestsecrettestsecrettestsecrettestsecret";
@@ -46,17 +39,11 @@ public class LoginService {
         // check username and password are valid to access token
         // note that subsequent request to the API need this token
 
-
         User foundUser = userRepo.findByUsername(username);
-
-        if(foundUser != null) {
-
-        User foundUser = userRepository.findByUsername(username);
         String encodedPassword = passwordEncoder.encode(password);
         String encodedDatabasePassword = passwordEncoder.encode(foundUser.getPassword());
         boolean matches = passwordEncoder.matches(foundUser.getPassword(), encodedPassword);
-        if(matches) {
-
+        if (matches) {
             if (Objects.equals(foundUser.getPassword(), password)) {
                 LOGGER.info("USER LOGGED IN - " + username);
                 LOGGER.info(encodedPassword);
@@ -69,7 +56,7 @@ public class LoginService {
         return "User not found";
     }
 
-    public String generateToken(String userId){
+    public String generateToken(String userId) {
         Key key = Keys.hmacShaKeyFor(keyStr.getBytes(StandardCharsets.UTF_8));
         List<GrantedAuthority> grantedAuthorities = AuthorityUtils.commaSeparatedStringToAuthorityList("ROLE_USER");
 
@@ -94,7 +81,7 @@ public class LoginService {
         BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
         String encode = bCryptPasswordEncoder.encode(newUser.getPassword());
         newUser.setPassword(encode);
-        User user = userRepository.save(newUser);
+        User user = userRepo.save(newUser);
         return user;
     }
 }
