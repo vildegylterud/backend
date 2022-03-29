@@ -8,6 +8,7 @@ import java.util.List;
 public class Role {
 
     @Id
+    @Column(name="role_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
