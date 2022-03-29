@@ -1,7 +1,7 @@
 package backend.service;
 import backend.controller.LoginController;
 import backend.model.User;
-import backend.repo.UserRepository;
+import backend.repo.UserRepo;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -22,10 +22,10 @@ import java.util.stream.Collectors;
 @Service
 public class LoginService {
 
-    UserRepository userRepository;
+    UserRepo userRepo;
 
-    LoginService(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    LoginService(UserRepo userRepo) {
+        this.userRepo = userRepo;
     }
 
     public static String keyStr = "testsecrettestsecrettestsecrettestsecrettestsecret";
@@ -36,7 +36,7 @@ public class LoginService {
         // check username and password are valid to access token
         // note that subsequent request to the API need this token
 
-        User foundUser = userRepository.findByUsername(username);
+        User foundUser = userRepo.findByUsername(username);
 
         if(foundUser != null) {
             if (Objects.equals(foundUser.getPassword(), password)) {

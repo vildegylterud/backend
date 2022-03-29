@@ -1,14 +1,17 @@
 package backend.model;
+
 import javax.persistence.*;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
-@Table(name = "user")
+@Table(name = "users")
 public class User {
 
     @Id
-    @Column(name = "id_user", nullable = false)
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private int idUser;
+    private Long id;
 
     @Column(name = "username")
     private String username;
@@ -16,8 +19,8 @@ public class User {
     @Column(name = "password")
     private String password;
 
-    public int getIdUser() {
-        return idUser;
+    public Long getId() {
+        return id;
     }
 
     public User(){
@@ -28,8 +31,8 @@ public class User {
         this.password = password;
     }
 
-    public void setIdUser(int id) {
-        this.idUser = id;
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getUsername() {
@@ -46,5 +49,20 @@ public class User {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "users_roles",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id")
+    )
+    private Set<Role> roles = new HashSet<>();
+
+    public void addRole(Role role) {
+        this.roles.add(role);
+    }
+    public Collection<Role> getRoles() {
+        return roles;
     }
 }
