@@ -9,6 +9,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
@@ -23,9 +25,11 @@ import java.util.stream.Collectors;
 public class LoginService {
 
     UserRepository userRepository;
+    PasswordEncoder passwordEncoder;
 
     LoginService(UserRepository userRepository) {
         this.userRepository = userRepository;
+        this.passwordEncoder = new BCryptPasswordEncoder();
     }
 
     public static String keyStr = "testsecrettestsecrettestsecrettestsecrettestsecret";
@@ -37,10 +41,14 @@ public class LoginService {
         // note that subsequent request to the API need this token
 
         User foundUser = userRepository.findByUsername(username);
-
-        if(foundUser != null) {
+        String encodedPassword = passwordEncoder.encode(password);
+        String encodedDatabasePassword = passwordEncoder.encode(foundUser.getPassword());
+        boolean matches = passwordEncoder.matches(foundUser.getPassword(), encodedPassword);
+        if(matches) {
             if (Objects.equals(foundUser.getPassword(), password)) {
                 LOGGER.info("USER LOGGED IN - " + username);
+                LOGGER.info(encodedPassword);
+                LOGGER.info(encodedDatabasePassword);
                 return generateToken(username);
             } else {
                 return "Wrong password";
@@ -70,5 +78,11 @@ public class LoginService {
                 .compact();
     }
 
-
+    public User saveUser(User newUser) {
+        BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
+        String encode = bCryptPasswordEncoder.encode(newUser.getPassword());
+        newUser.setPassword(encode);
+        User user = userRepository.save(newUser);
+        return user;
+    }
 }
