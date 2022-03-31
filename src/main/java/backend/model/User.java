@@ -1,5 +1,8 @@
 package backend.model;
 
+import backend.security.SecurityConfig;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
 import javax.persistence.*;
 import java.util.Collection;
 import java.util.HashSet;
@@ -52,7 +55,7 @@ public class User {
         this.password = password;
     }
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(cascade = CascadeType.ALL,fetch = FetchType.EAGER)
     @JoinTable(
             name = "users_roles",
             joinColumns = @JoinColumn(name = "user_id"),
@@ -63,7 +66,9 @@ public class User {
     public void addRole(Role role) {
         this.roles.add(role);
     }
-    public Collection<Role> getRoles() {
+    public Set<Role> getRoles() {
         return roles;
     }
+
+
 }

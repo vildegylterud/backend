@@ -13,6 +13,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.client.token.grant.password.ResourceOwnerPasswordResourceDetails;
 import org.springframework.stereotype.Service;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
@@ -22,12 +23,13 @@ import java.util.stream.Collectors;
 @Service
 public class LoginService {
     UserRepo userRepo;
-    RoleRepo roleRepo;
     PasswordEncoder passwordEncoder;
+    UserServiceImpl userService;
 
     LoginService(UserRepo userRepo) {
         this.userRepo = userRepo;
         this.passwordEncoder = new BCryptPasswordEncoder();
+        userService = new UserServiceImpl();
     }
 
     public static String keyStr = "testsecrettestsecrettestsecrettestsecrettestsecret";
@@ -39,17 +41,20 @@ public class LoginService {
         // note that subsequent request to the API need this token
 
         User foundUser = userRepo.findByUsername(username);
-        Optional<Role> foundRole = roleRepo.findById(foundUser.getId());
+
         String encodedPassword = passwordEncoder.encode(password);
+
         String encodedDatabasePassword = passwordEncoder.encode(foundUser.getPassword());
         boolean matches = passwordEncoder.matches(foundUser.getPassword(), encodedPassword);
+
+
         if (matches) {
             if (Objects.equals(foundUser.getPassword(), password)) {
                 LOGGER.info("USER LOGGED IN - " + username);
-
+                LOGGER.info("ROLE - " + userService.getAuthorities(foundUser)); //skriver ut rollenavn i databasen
                 LOGGER.info(encodedPassword);
                 LOGGER.info(encodedDatabasePassword);
-                return generateToken(username, foundRole.toString());
+                return generateToken(username, userService.getAuthorities(foundUser).toString()) + " " + userService.getAuthorities(foundUser);
             } else {
                 return "Wrong password";
             }
@@ -57,13 +62,15 @@ public class LoginService {
         return "User not found";
     }
 
-    public String generateToken(String userId,String roleId) {
+
+    //prøver å generere token ut fra rollenavnet også (før bare user id)
+    public String generateToken(String userId, String roleName) {
         Key key = Keys.hmacShaKeyFor(keyStr.getBytes(StandardCharsets.UTF_8));
         List<GrantedAuthority> grantedAuthorities = AuthorityUtils.commaSeparatedStringToAuthorityList("ROLE_USER");
 
-        Claims claims = Jwts.claims().setSubject(userId).setSubject(roleId);
+        Claims claims = Jwts.claims().setSubject(userId);
         claims.put("userId", userId);
-        claims.put("role_id", roleId);
+        claims.put("name", roleName);
         claims.put("authorities", grantedAuthorities
                 .stream()
                 .map(GrantedAuthority::getAuthority)
@@ -72,7 +79,7 @@ public class LoginService {
         return Jwts.builder()
                 .setId(UUID.randomUUID().toString())
                 .setSubject(userId)
-                .setSubject(roleId)
+                .setSubject(roleName)
                 .setClaims(claims)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + 600000000))

@@ -1,11 +1,13 @@
 package backend.model;
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 
 @Entity
 @Table(name = "roles")
 public class Role {
+
 
     @Id
     @Column(name="role_id")

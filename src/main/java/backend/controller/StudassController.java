@@ -8,15 +8,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping(value = "/")
+@RequestMapping(value = "/studass")
 @EnableAutoConfiguration
 @CrossOrigin
-public class HomeController {
-    private static final Logger LOGGER = LogManager.getLogger(LoginController.class);
+public class StudassController {
+    private static final Logger LOGGER = LogManager.getLogger(StudassController.class);
     @GetMapping(value = "")
     @ResponseStatus(value = HttpStatus.ACCEPTED)
-    public String doLogin(){
-        String message = "Say hello...";
+    public String doLoginStudass(){
+        String message = "studass";
         LOGGER.info(message);
         return message;
     }
