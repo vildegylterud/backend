@@ -1,8 +1,6 @@
 package backend.model;
 import javax.persistence.*;
-import java.io.Serializable;
-import java.util.Collection;
-import java.util.List;
+
 
 @Entity
 @Table(name = "roles")
